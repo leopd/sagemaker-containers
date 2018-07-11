@@ -223,6 +223,8 @@ def run(module_name, args=None, env_vars=None):  # type: (str, list, dict) -> No
 
     _logging.log_script_invocation(cmd, env_vars)
 
+    #TODO: bug -- environment variables are not actually passed to the command being run.
+
     _check_error(cmd, _errors.ExecuteUserScriptError)
 
 
@@ -288,7 +290,7 @@ def run_module_from_s3(url, args, env_vars=None, name=DEFAULT_MODULE_NAME, cache
 
     download_and_install(url, name, cache)
 
-    write_env_vars(env_vars)
+    write_env_vars(env_vars)  # TODO: This is now redundant.
 
     return run(name, args, env_vars)
 

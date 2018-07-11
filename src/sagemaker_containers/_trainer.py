@@ -16,7 +16,7 @@ import sys
 import traceback
 
 import sagemaker_containers
-from sagemaker_containers import _errors, _files, _logging
+from sagemaker_containers import _errors, _files, _logging, _modules
 
 logger = _logging.get_logger()
 
@@ -58,6 +58,8 @@ def train():
         logger.info('Imported framework %s', framework_name)
 
         entry_point = getattr(framework, entry_point_name)
+
+        _modules.write_env_vars(env.to_env_vars())
 
         entry_point()
 
