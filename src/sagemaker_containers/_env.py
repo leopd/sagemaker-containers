@@ -13,6 +13,7 @@
 from __future__ import absolute_import
 
 from distutils import util
+import collections
 import json
 import logging
 import multiprocessing
@@ -90,8 +91,12 @@ def _read_json(path):  # type: (str) -> dict
     Returns:
         (dict[object, object]): A dictionary representation of the JSON file.
     """
-    with open(path, 'r') as f:
-        return json.load(f)
+    if os.path.isfile(path):
+        with open(path, 'r') as f:
+            return json.load(f)
+    else:
+        logger.warn("Missing config file %s" % path)
+        return collections.defaultdict(str)
 
 
 def read_hyperparameters():  # type: () -> dict
@@ -433,8 +438,8 @@ class TrainingEnv(_Env):
 
         sagemaker_hyperparameters = split_result.included
 
-        sagemaker_region = sagemaker_hyperparameters[_params.REGION_NAME_PARAM]
-        os.environ[_params.JOB_NAME_ENV] = sagemaker_hyperparameters[_params.JOB_NAME_PARAM]
+        sagemaker_region = sagemaker_hyperparameters.get(_params.REGION_NAME_PARAM,'')
+        os.environ[_params.JOB_NAME_ENV] = sagemaker_hyperparameters.get(_params.JOB_NAME_PARAM,'')
         os.environ[_params.CURRENT_HOST_ENV] = current_host
         os.environ[_params.REGION_NAME_ENV] = sagemaker_region
 
@@ -448,8 +453,8 @@ class TrainingEnv(_Env):
         self._current_host = current_host
 
         # override base class attributes
-        self._module_name = str(sagemaker_hyperparameters[_params.USER_PROGRAM_PARAM])
-        self._module_dir = str(sagemaker_hyperparameters[_params.SUBMIT_DIR_PARAM])
+        self._module_name = str(sagemaker_hyperparameters.get(_params.USER_PROGRAM_PARAM,''))
+        self._module_dir = str(sagemaker_hyperparameters.get(_params.SUBMIT_DIR_PARAM,''))
         self._log_level = sagemaker_hyperparameters.get(_params.LOG_LEVEL_PARAM, logging.INFO)
         self._framework_module = os.environ.get(_params.FRAMEWORK_TRAINING_MODULE_ENV, None)
 

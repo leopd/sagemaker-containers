@@ -12,6 +12,7 @@
 # language governing permissions and limitations under the License.
 import importlib
 import os
+import sys
 import traceback
 
 import sagemaker_containers
@@ -44,7 +45,11 @@ def train():
 
         framework_name, entry_point_name = env.framework_module.split(':')
 
-        framework = importlib.import_module(framework_name)
+        try:
+            framework = importlib.import_module(framework_name)
+        except:
+            logger.error("Import failure loading %s. sys.path=%s" % (framework_name,sys.path))
+            raise
 
         # the logger is configured after importing the framework library, allowing the framework to
         # configure logging at import time.
