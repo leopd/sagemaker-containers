@@ -131,6 +131,18 @@ def exists(name):  # type: (str) -> bool
         return True
 
 
+
+def download_application_code(url, path):
+    with _files.tmpdir() as tmpdir:
+        temp_tarball = os.path.join(tmpdir, 'tar_file')
+        s3_download(url, temp_tarball)
+
+        os.makedirs(path)
+        with tarfile.open(name=temp_tarball, mode='r:gz') as t:
+            t.extractall(path=path)
+
+
+
 def download_and_install(url, name=DEFAULT_MODULE_NAME, cache=True):
     # type: (str, str, bool) -> module
     """Download, prepare and install a compressed tar file from S3 as a module.
@@ -152,19 +164,11 @@ def download_and_install(url, name=DEFAULT_MODULE_NAME, cache=True):
 
     if not should_use_cache:
         with _files.tmpdir() as tmpdir:
-            dst = os.path.join(tmpdir, 'tar_file')
-            s3_download(url, dst)
-
             module_path = os.path.join(tmpdir, 'module_dir')
+            download_application_code(url, module_path)
 
-            os.makedirs(module_path)
-
-            with tarfile.open(name=dst, mode='r:gz') as t:
-                t.extractall(path=module_path)
-
-                if name:
-                    prepare(module_path, name)
-                    install(module_path)
+            prepare(module_path, name)
+            install(module_path)
 
 
 def run(module_name, args=None, env_vars=None):  # type: (str, list, dict) -> None
