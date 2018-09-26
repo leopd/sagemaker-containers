@@ -162,7 +162,8 @@ def download_and_install(url, name=DEFAULT_MODULE_NAME, cache=True):
             with tarfile.open(name=dst, mode='r:gz') as t:
                 t.extractall(path=module_path)
 
-                prepare(module_path, name)
+                if name:
+                    prepare(module_path, name)
 
                 install(module_path)
 
