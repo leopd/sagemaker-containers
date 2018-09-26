@@ -164,8 +164,7 @@ def download_and_install(url, name=DEFAULT_MODULE_NAME, cache=True):
 
                 if name:
                     prepare(module_path, name)
-
-                install(module_path)
+                    install(module_path)
 
 
 def run(module_name, args=None, env_vars=None):  # type: (str, list, dict) -> None
